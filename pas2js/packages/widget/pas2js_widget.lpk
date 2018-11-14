@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <Name Value="Pas2JS_Widget"/>
+    <Type Value="RunTimeOnly"/>
+    <Author Value="Hélio S. Ribeiro and Anderson J. Gado da Silva"/>
+    <AutoUpdate Value="Manually"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <SearchPaths>
+        <UnitOutputDirectory Value="."/>
+      </SearchPaths>
+      <Parsing>
+        <SyntaxOptions>
+          <AllowLabel Value="False"/>
+          <CPPInline Value="False"/>
+          <UseAnsiStrings Value="False"/>
+        </SyntaxOptions>
+      </Parsing>
+      <CodeGeneration>
+        <Optimizations>
+          <OptimizationLevel Value="0"/>
+        </Optimizations>
+      </CodeGeneration>
+      <Linking>
+        <Debugging>
+          <GenerateDebugInfo Value="False"/>
+        </Debugging>
+      </Linking>
+      <Other>
+        <CustomOptions Value="-dPas2js -O- -Jc"/>
+        <CompilerPath Value="pas2js"/>
+        <ExecuteBefore>
+          <Command Value="$MakeExe(IDE,pas2js) -O- -Jc -vbq pas2js_rtl.pas"/>
+        </ExecuteBefore>
+      </Other>
+      <SkipCompiler Value="True"/>
+    </CompilerOptions>
+    <License Value="{
+  MIT License
+
+  Copyright (c) 2018 Helio S. Ribeiro and Anderson J. Gado da Silva
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the &quot;Software&quot;), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+}  "/>
+    <Version Major="1"/>
+    <Files Count="15">
+      <Item1>
+        <Filename Value="webextra.pas"/>
+        <UnitName Value="WebExtra"/>
+      </Item1>
+      <Item2>
+        <Filename Value="maskutils.pas"/>
+        <UnitName Value="MaskUtils"/>
+      </Item2>
+      <Item3>
+        <Filename Value="interfaces.pas"/>
+        <UnitName Value="Interfaces"/>
+      </Item3>
+      <Item4>
+        <Filename Value="graphics.pas"/>
+        <UnitName Value="Graphics"/>
+      </Item4>
+      <Item5>
+        <Filename Value="controls.pas"/>
+        <UnitName Value="Controls"/>
+      </Item5>
+      <Item6>
+        <Filename Value="forms.pas"/>
+        <UnitName Value="Forms"/>
+      </Item6>
+      <Item7>
+        <Filename Value="stdctrls.pas"/>
+        <UnitName Value="StdCtrls"/>
+      </Item7>
+      <Item8>
+        <Filename Value="extctrls.pas"/>
+        <UnitName Value="ExtCtrls"/>
+      </Item8>
+      <Item9>
+        <Filename Value="comctrls.pas"/>
+        <UnitName Value="ComCtrls"/>
+      </Item9>
+      <Item10>
+        <Filename Value="numctrls.pas"/>
+        <UnitName Value="NumCtrls"/>
+      </Item10>
+      <Item11>
+        <Filename Value="dttctrls.pas"/>
+        <UnitName Value="DttCtrls"/>
+      </Item11>
+      <Item12>
+        <Filename Value="btnctrls.pas"/>
+        <UnitName Value="BtnCtrls"/>
+      </Item12>
+      <Item13>
+        <Filename Value="datagrid.pas"/>
+        <UnitName Value="DataGrid"/>
+      </Item13>
+      <Item14>
+        <Filename Value="dialogs.pas"/>
+        <UnitName Value="Dialogs"/>
+      </Item14>
+      <Item15>
+        <Filename Value="webctrls.pas"/>
+        <UnitName Value="WebCtrls"/>
+      </Item15>
+    </Files>
+    <RequiredPkgs Count="1">
+      <Item1>
+        <PackageName Value="pas2js_rtl"/>
+      </Item1>
+    </RequiredPkgs>
+    <UsageOptions>
+      <CustomOptions Value="-dPas2js"/>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>
