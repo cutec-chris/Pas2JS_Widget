@@ -1,6 +1,7 @@
 # Pas2JS Widgetset
-Pas2JS Widgetset is a RAD Framework to develop Web Applications like to develop Windows Applications. Support for JQuery, Bootstrap.
+Pas2JS Widgetset is a RAD Framework to develop Web Applications like to develop Windows Applications.
 
+### Thanks
 This project is only possible thanks to [Freepascal](https://www.freepascal.org/ "Freepascal"), [Lazarus](https://www.lazarus-ide.org/ "Lazarus") and the fabulous compiler [Pas2JS](http://wiki.freepascal.org/pas2js "Pas2JS")
 
 
