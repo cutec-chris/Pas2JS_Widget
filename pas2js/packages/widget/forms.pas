@@ -45,6 +45,30 @@ type
   TModalResult = low(integer)..high(integer);
   TModalResultProc = reference to procedure (Sender: TObject; ModalResult: TModalResult);
 
+  { TCustomDataModule }
+
+  TCustomDataModule = class(TControl)
+  private
+    FOldOrder: Boolean;
+    FOnCreate: TNotifyEvent;
+    FOnDestroy: TNotifyEvent;
+  protected
+    Procedure DoCreate; virtual;
+    Procedure DoDestroy; virtual;
+  protected
+    procedure Changed; override;
+    function CreateHandleElement: TJSHTMLElement; override;
+  protected
+    class function GetControlClassDefaultSize: TSize; override;
+  public           
+    constructor Create(AOwner: TComponent); override;
+    Procedure AfterConstruction; override;
+    Procedure BeforeDestruction; override;
+    property OnCreate: TNotifyEvent read FOnCreate write FOnCreate;
+    property OnDestroy: TNotifyEvent read FOnDestroy write FOnDestroy;
+    property OldCreateOrder: Boolean read FOldOrder write FOldOrder;
+  end;
+
   { TCustomFrame }
 
   TCustomFrame = class(TCustomControl)
@@ -55,6 +79,7 @@ type
     class function GetControlClassDefaultSize: TSize; override;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure AfterConstruction; override;
   end;
   TCustomFrameClass = class of TCustomFrame;
 
@@ -142,7 +167,7 @@ type
 
   TApplication = class(TComponent)
   private
-    FForms: TJSArray;
+    FModules: TJSArray;
     FActiveForm: TCustomForm;
     FMainForm: TCustomForm;
     FStopOnException: boolean;
@@ -151,9 +176,9 @@ type
     FOnResize: TNotifyEvent;
     FOnUnload: TNotifyEvent;
     function GetApplicatioName: string;
-    function GetForm(const AIndex: NativeInt): TCustomForm;
-    function GetFormCount: NativeInt;
-    function GetFormIndex(const AForm: TCustomForm): NativeInt;
+    function GetModule(const AIndex: NativeInt): TControl;
+    function GetModuleCount: NativeInt;
+    function GetModuleIndex(const AModule: TControl): NativeInt;
     function GetTitle: string;
     procedure SetTitle(AValue: string);
   protected
@@ -161,8 +186,6 @@ type
     procedure DoUnload; virtual;
     procedure LoadIcon; virtual;
   protected
-    procedure RegisterForm(AForm: TCustomForm); virtual;
-    procedure UnRegisterForm(AForm: TCustomForm); virtual;
     procedure RegisterHandleEvents; virtual;
     procedure UnRegisterHandleEvents; virtual;
   protected
@@ -172,17 +195,19 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure CreateForm(AInstanceClass: TCustomFormClass; out AReference); virtual;
+    procedure CreateForm(AInstanceClass: TControlClass; out AReference); virtual;
     procedure Initialize; virtual;
     procedure Run; virtual;
     procedure Terminate; virtual;   
-    procedure UpdateMainForm(AForm: TCustomForm);
-  public
-    property ActiveForm: TCustomForm read FActiveForm write FActiveForm;
+    procedure UpdateMainForm(AForm: TCustomForm);  
+    procedure RegisterModule(AModule: TControl); virtual;
+    procedure UnRegisterModule(AModule: TControl); virtual;
+  public      
+    property ActiveForm: TCustomForm read FActiveForm write FActiveForm;   
     property ApplicatioName: string read GetApplicatioName;
-    property FormCount: NativeInt read GetFormCount;
-    property FormIndex[const AForm: TCustomForm]: NativeInt read GetFormIndex;
-    property Forms[const AIndex: NativeInt]: TCustomForm read GetForm;
+    property ModuleCount: NativeInt read GetModuleCount;        
+    property ModuleIndex[const AModule: TControl]: NativeInt read GetModuleIndex;
+    property Module[const AIndex: NativeInt]: TControl read GetModule;
     property MainForm: TCustomForm read FMainForm;
     property StopOnException: boolean read FStopOnException write FStopOnException;
     property Terminated: boolean read FTerminated;
@@ -234,7 +259,7 @@ type
   public
     constructor Create(const AForm: TCustomForm); reintroduce;
     destructor Destroy; override;
-  end;
+  end;   
 
 { TOverlay }
 
@@ -271,6 +296,81 @@ begin
     FForm.HandleElement.RemoveChild(FHandleElement);
   end;
   inherited Destroy;
+end;
+
+
+
+{ TCustomDataModule }
+
+procedure TCustomDataModule.DoCreate;
+begin
+  if (Assigned(FOnCreate)) then
+  begin
+    FOnCreate(Self);
+  end;
+end;
+
+procedure TCustomDataModule.DoDestroy;
+begin
+  if (Assigned(FOnDestroy)) then
+  begin
+    FOnDestroy(Self);
+  end;
+end;
+
+procedure TCustomDataModule.Changed;
+begin
+  inherited Changed;  
+  if (not IsUpdating) then
+  begin
+    with HandleElement do
+    begin
+      /// Visibility
+      Style.SetProperty('visibility', 'hidden');
+      Style.SetProperty('display', 'none');
+    end;
+  end;
+end;
+
+function TCustomDataModule.CreateHandleElement: TJSHTMLElement;
+begin
+  Result := TJSHTMLElement(Document.CreateElement('div'));
+end;
+
+class function TCustomDataModule.GetControlClassDefaultSize: TSize;
+begin
+  Result.Cx := 150;
+  Result.Cy := 150;
+end;
+
+constructor TCustomDataModule.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);  
+  BeginUpdate;
+  try
+    with GetControlClassDefaultSize do
+    begin
+      SetBounds(0, 0, Cx, Cy);
+    end;
+  finally
+    EndUpdate;
+  end;
+end;
+
+procedure TCustomDataModule.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  Application.RegisterModule(Self);
+  Loaded;
+  DoCreate;
+end;
+
+procedure TCustomDataModule.BeforeDestruction;
+begin           
+  inherited BeforeDestruction;   
+  Application.UnRegisterModule(Self);
+  //Destroying;
+  DoDestroy;
 end;
 
 { TCustomFrame }
@@ -315,6 +415,12 @@ begin
   finally
     EndUpdate;
   end;
+end;
+
+procedure TCustomFrame.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  Loaded;
 end;
 
 { TCustomForm }
@@ -529,7 +635,7 @@ procedure TCustomForm.AfterConstruction;
 begin
   inherited AfterConstruction;
   Application.UpdateMainForm(Self);
-  Application.RegisterForm(Self);
+  Application.RegisterModule(Self);
   Loaded;
   DoCreate;
 end;
@@ -537,7 +643,7 @@ end;
 procedure TCustomForm.BeforeDestruction;
 begin
   inherited BeforeDestruction;
-  Application.UnRegisterForm(Self);
+  Application.UnRegisterModule(Self);
   DoDestroy;
 end;
 
@@ -545,8 +651,8 @@ procedure TCustomForm.Close;
 var
   VAction: TCloseAction;   
   VIndex: NativeInt;
-  VLastForm: TCustomForm;
   VOwnerForm: TCustomForm;
+  VModule: TControl;
 begin
   if (CloseQuery) then
   begin
@@ -583,12 +689,12 @@ begin
         else
         begin
           /// Last active form
-          for VIndex := (Application.FormCount - 1) downto 0 do
+          for VIndex := (Application.ModuleCount - 1) downto 0 do
           begin
-            VLastForm := Application.Forms[VIndex];
-            if (Assigned(VLastForm)) and (VLastForm.Visible) and (VLastForm <> Self) then
+            VModule := Application.Module[VIndex];
+            if (Assigned(VModule)) and (VModule.Visible) and (VModule <> Self) and (VModule.InheritsFrom(TCustomForm)) then
             begin
-              VLastForm.Show;
+              TCustomForm(VModule).Show;
               Exit;
             end;
           end;
@@ -709,24 +815,24 @@ end;
 
 { TApplication }
 
-function TApplication.GetForm(const AIndex: NativeInt): TCustomForm;
-begin
-  Result := TCustomForm(FForms[AIndex]);
-end;
-
 function TApplication.GetApplicatioName: string;
 begin
   Result := Window.Location.PathName;
 end;
 
-function TApplication.GetFormCount: NativeInt;
+function TApplication.GetModule(const AIndex: NativeInt): TControl;
 begin
-  Result := FForms.Length;
+  Result := TControl(FModules[AIndex]);
 end;
 
-function TApplication.GetFormIndex(const AForm: TCustomForm): NativeInt;
+function TApplication.GetModuleCount: NativeInt;
 begin
-  Result := FForms.IndexOf(AForm);
+  Result := FModules.Length;
+end;
+
+function TApplication.GetModuleIndex(const AModule: TControl): NativeInt;
+begin
+  Result := FModules.IndexOf(AModule);
 end;
 
 function TApplication.GetTitle: string;
@@ -760,8 +866,6 @@ begin
 end;
 
 procedure TApplication.LoadIcon;
-Var
-  VHRef: string;
 begin
   /// Add an icon logo to the title bar
   with TJSHTMLElement(Document.Head.AppendChild(Document.CreateElement('link'))) do
@@ -769,39 +873,6 @@ begin
     SetAttribute('rel', 'icon');
     SetAttribute('type', 'image/icon');
     SetAttribute('href',  TJSString(ApplicatioName).Replace('html', 'ico'));
-  end;
-end;
-
-procedure TApplication.RegisterForm(AForm: TCustomForm);
-begin
-  if (Assigned(AForm)) then
-  begin
-    if (FForms.IndexOf(AForm) = -1) then
-    begin
-      FForms.Push(AForm);
-      if (not Document.Body.Contains(AForm.HandleElement)) then
-      begin
-        Document.Body.AppendChild(AForm.HandleElement);
-      end;
-    end;
-  end;
-end;
-
-procedure TApplication.UnRegisterForm(AForm: TCustomForm);
-var
-  VIndex: NativeInt;
-begin
-  if (Assigned(AForm)) then
-  begin
-    VIndex := FForms.IndexOf(AForm);
-    if (VIndex >= 0) then
-    begin
-      FForms.Splice(VIndex, 1);
-      if (Document.Body.Contains(AForm.HandleElement)) then
-      begin
-        Document.Body.RemoveChild(AForm.HandleElement);
-      end;
-    end;
   end;
 end;
 
@@ -848,20 +919,20 @@ end;
 
 function TApplication.HandleResize(AEvent: TJSEvent): boolean;
 var
-  VForm: TCustomForm;
+  VControl: TControl;
   VIndex: NativeInt;
 begin
   AEvent.StopPropagation;
   DoResize();
   Result := True;
   /// Notify all of forms resize
-  for VIndex := 0 to (FForms.Length - 1) do
+  for VIndex := 0 to (FModules.Length - 1) do
   begin
-    VForm := TCustomForm(FForms[VIndex]);
-    if (Assigned(VForm)) and (VForm.Visible) then
+    VControl := TControl(FModules[VIndex]);
+    if (Assigned(VControl)) and (VControl.Visible) and (VControl.InheritsFrom(TCustomForm)) then
     begin
-      VForm.Resize;
-    end;
+      TCustomForm(VControl).Resize;
+    end
   end;
 end;
 
@@ -879,7 +950,7 @@ end;
 constructor TApplication.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FForms := TJSArray.New;
+  FModules := TJSArray.New;
   FMainForm := nil;
   FStopOnException := True;
   FTerminated := False;
@@ -888,11 +959,11 @@ end;
 
 destructor TApplication.Destroy;
 begin
-  FForms.Length := 0;
+  FModules.Length := 0;
   inherited Destroy;
 end;
 
-procedure TApplication.CreateForm(AInstanceClass: TCustomFormClass; out AReference);
+procedure TApplication.CreateForm(AInstanceClass: TControlClass; out AReference);
 begin
   try        
     AReference := AInstanceClass.Create(Self);
@@ -922,20 +993,20 @@ end;
 
 procedure TApplication.Terminate;
 var
-  VForm: TCustomForm;
+  VModule: TControl;
   VIndex: NativeInt;
 begin
   if (not FTerminated) then
   begin
     UnRegisterHandleEvents;
     FTerminated := True;
-    for VIndex := (FForms.Length - 1) downto 0 do
+    for VIndex := (FModules.Length - 1) downto 0 do
     begin
-      VForm := TCustomForm(FForms[VIndex]);
-      if (Assigned(VForm)) then
+      VModule := TControl(FModules[VIndex]);
+      if (Assigned(VModule)) then
       begin
-        VForm.Destroy;
-        VForm := nil;
+        VModule.Destroy;
+        VModule := nil;
       end;
     end;
   end;
@@ -947,6 +1018,39 @@ begin
   begin
     FMainForm := AForm;
     FActiveForm := AForm;
+  end;
+end;
+
+procedure TApplication.RegisterModule(AModule: TControl);
+begin
+  if (Assigned(AModule)) then
+  begin
+    if (FModules.IndexOf(AModule) = -1) then
+    begin
+      FModules.Push(AModule);
+      if (not Document.Body.Contains(AModule.HandleElement)) then
+      begin
+        Document.Body.AppendChild(AModule.HandleElement);
+      end;
+    end;
+  end;
+end;
+
+procedure TApplication.UnRegisterModule(AModule: TControl);
+var
+  VIndex: NativeInt;
+begin
+  if (Assigned(AModule)) then
+  begin
+    VIndex := FModules.IndexOf(AModule);
+    if (VIndex >= 0) then
+    begin
+      FModules.Splice(VIndex, 1);
+      if (Document.Body.Contains(AModule.HandleElement)) then
+      begin
+        Document.Body.RemoveChild(AModule.HandleElement);
+      end;
+    end;
   end;
 end;
 

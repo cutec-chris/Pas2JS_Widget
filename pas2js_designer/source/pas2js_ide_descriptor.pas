@@ -68,12 +68,39 @@ type
     function GetLocalizedDescription: string; override;
   end;
 
+  { TPas2JSWFrame }
+
+  TPas2JSWFrame = class(TFileDescPascalUnitWithResource)
+  public
+    constructor Create; override;
+    function GetUnitDirectives: string; override;
+    function GetInterfaceUsesSection: string; override;
+    function GetInterfaceSource(const {%H-}Filename, {%H-}SourceName, ResourceName: string): string; override;
+    function GetImplementationSource(const Filename, SourceName, ResourceName: string): string; override;
+    function GetLocalizedName: string; override;
+    function GetLocalizedDescription: string; override;
+  end;
+
+  { TPas2JSWDataModule }
+
+  TPas2JSWDataModule = class(TFileDescPascalUnitWithResource)
+  public
+    constructor Create; override;
+    function GetUnitDirectives: string; override;
+    function GetInterfaceUsesSection: string; override;
+    function GetInterfaceSource(const {%H-}Filename, {%H-}SourceName, ResourceName: string): string; override;
+    function GetImplementationSource(const Filename, SourceName, ResourceName: string): string; override;
+    function GetLocalizedName: string; override;
+    function GetLocalizedDescription: string; override;
+  end;
+
 procedure Register;
 
 var
   VPas2JSProject: TPas2JSProject;
-  VPas2JSWForm: TPas2JSWForm;
-
+  VPas2JSWForm: TPas2JSWForm;    
+  VPas2JSWFrame: TPas2JSWFrame;   
+  VPas2JSWDataModule: TPas2JSWDataModule;
 
 implementation
 
@@ -83,7 +110,6 @@ uses
   WebCtrls,
   FPJSON,
   Pas2JS_IDE_Options;
-
 
 { TPas2JSProject }
 
@@ -191,7 +217,8 @@ begin
     Exit;
   end;
   AProject.AddFile(Project, False);
-  AProject.AddPackageDependency('Pas2JS_Widget');
+  AProject.AddPackageDependency('pas2js_rtl');
+  AProject.AddPackageDependency('pas2js_widget');
   AProject.Flags := AProject.Flags - [pfRunnable];
   AProject.LoadDefaultIcon;
   AProject.MainFileID := 0;
@@ -219,7 +246,7 @@ end;
 
 function TPas2JSWForm.GetUnitDirectives: string;
 begin
-  Result := '{$mode delphi}{$H+} ';
+  Result := '{$mode delphi}{$H+}';
 end;
 
 function TPas2JSWForm.GetInterfaceUsesSection: string;
@@ -262,7 +289,7 @@ end;
 
 function TPas2JSWForm.GetLocalizedName: string;
 begin
-  Result := 'Web Form(Pas2JS) ';
+  Result := 'Web Form(Pas2JS)';
 end;
 
 function TPas2JSWForm.GetLocalizedDescription: string;
@@ -270,6 +297,124 @@ begin
   Result := 'Create a Pas2JS Web Form';
 end;
 
+{ TPas2JSWFrame }
+
+constructor TPas2JSWFrame.Create;
+begin
+  inherited Create;
+  Name := 'WFrame';
+  ResourceClass := TWFrame;
+  UseCreateFormStatements := False;
+end;
+
+function TPas2JSWFrame.GetUnitDirectives: string;
+begin                                                                           
+  Result := '{$mode delphi}{$H+}';
+end;
+
+function TPas2JSWFrame.GetInterfaceUsesSection: string;
+begin
+  Result := 'JS, Classes, SysUtils, Graphics, Controls, Forms, Dialogs, WebCtrls';
+end;
+                       
+function TPas2JSWFrame.GetInterfaceSource(const Filename, SourceName, ResourceName: string): string;
+const
+  LE = LineEnding;
+begin
+  Result :=
+    'type' + LE +
+    '  T' + ResourceName + ' = class(' + ResourceClass.ClassName + ')' + LE +
+    '  private' + LE + LE +
+    '  public' + LE +
+    '    procedure Loaded; override;' + LE +
+    '  end;' + LE + LE;
+end;
+
+function TPas2JSWFrame.GetImplementationSource(const Filename, SourceName, ResourceName: string): string;
+const
+  LE = LineEnding;
+begin
+  Result := inherited GetImplementationSource(Filename, SourceName, ResourceName);
+  Result :=
+    'procedure T' + ResourceName + '.Loaded;' + LE +
+    'begin' + LE +
+    '  inherited Loaded;' + LE +
+    '  {$I ' + ExtractFileNameWithoutExt(Filename) + '.wfm}' + LE +
+    'end;' + LE + LE;
+end;
+
+function TPas2JSWFrame.GetLocalizedName: string;
+begin
+  Result := 'Web Frame(Pas2JS)';
+end;
+
+function TPas2JSWFrame.GetLocalizedDescription: string;
+begin
+  Result := 'Create a Pas2JS Web Fram';
+end;
+
+{ TPas2JSWDataModule }
+
+constructor TPas2JSWDataModule.Create;
+begin
+  inherited Create;
+  Name := 'WDataModule';
+  ResourceClass := TWDataModule;
+  UseCreateFormStatements := True;
+end;
+
+function TPas2JSWDataModule.GetUnitDirectives: string;
+begin
+  Result := '{$mode delphi}{$H+}';
+end;
+
+function TPas2JSWDataModule.GetInterfaceUsesSection: string;
+begin
+  Result := 'JS, Classes, SysUtils, Graphics, Controls, Forms, Dialogs, WebCtrls';
+end;
+
+function TPas2JSWDataModule.GetInterfaceSource(const Filename, SourceName, ResourceName: string): string;
+const
+  LE = LineEnding;
+begin
+  Result :=
+    'type' + LE +
+    '  T' + ResourceName + ' = class(' + ResourceClass.ClassName + ')' + LE +
+    '  private' + LE + LE +
+    '  public' + LE +
+    '    procedure Loaded; override;' + LE +
+    '  end;' + LE + LE;
+
+  if (DeclareClassVariable) then
+  begin
+    Result := Result +
+      'var' + LE +
+      '  ' + ResourceName + ': T' + ResourceName + ';' + LE + LE;
+  end;
+end;
+
+function TPas2JSWDataModule.GetImplementationSource(const Filename, SourceName, ResourceName: string): string;
+const
+  LE = LineEnding;
+begin
+  Result := inherited GetImplementationSource(Filename, SourceName, ResourceName);
+  Result :=
+    'procedure T' + ResourceName + '.Loaded;' + LE +
+    'begin' + LE +
+    '  inherited Loaded;' + LE +
+    '  {$I ' + ExtractFileNameWithoutExt(Filename) + '.wfm}' + LE +
+    'end;' + LE + LE;
+end;
+
+function TPas2JSWDataModule.GetLocalizedName: string;
+begin
+  Result := 'Web Data Module(Pas2JS)';
+end;
+
+function TPas2JSWDataModule.GetLocalizedDescription: string;
+begin
+  Result := 'Create a Pas2JS Web Data Module';
+end;
 
 type
 
@@ -284,35 +429,39 @@ type
 
 function TIDEExtensionHandler.DoSaveEditorFile(Sender: TObject; AFile: TLazProjectFile; SaveStep: TSaveEditorFileStep; TargetFilename: string): TModalResult;
 
-  function FindCurrentForm: TCustomForm;
+  function FindCurrentModule: TComponent;
   var
     VIndex: longint;
-    VForm: TCustomForm;
+    VComponent: TComponent;
   begin
     Result := nil;
     for VIndex := 0 to (FormEditingHook.DesignerCount - 1) do
     begin
-      VForm := FormEditingHook.GetDesignerForm(FormEditingHook.Designer[VIndex].LookupRoot);
-      if (Assigned(VForm)) and (VForm.InheritsFrom(TWForm)) and (SameText(VForm.UnitName, AFile.Unit_Name)) then
+      VComponent := FormEditingHook.Designer[VIndex].LookupRoot;
+      if (Assigned(VComponent)) and
+         (SameText(VComponent.UnitName, AFile.Unit_Name)) and
+         (VComponent.InheritsFrom(TWForm)) or
+         (VComponent.InheritsFrom(TWFrame)) or
+         (VComponent.InheritsFrom(TWDataModule)) then
       begin
-        Exit(VForm);
+        Exit(VComponent);
       end;
     end;
   end;
 
 var
-  VCurrentForm: TCustomForm;
+  VCurrentModule: TComponent;
   VFile: TFilename;
   VStream: TMemoryStream;
   VData: string;
-begin
+begin   
   Result := mrOk;
   if (SaveStep <> sefsAfterWrite) then
   begin
     Exit;
   end;
-  VCurrentForm := FindCurrentForm;
-  if (not (Assigned(VCurrentForm))) then
+  VCurrentModule := FindCurrentModule;
+  if (not (Assigned(VCurrentModule))) then
   begin
     Exit;
   end;
@@ -330,20 +479,25 @@ begin
   end;
 end;
 
-
 procedure Register;
-
-
 var
   {%H-}VIDEExtension: TIDEExtensionHandler;
 begin
-  VPas2JSWForm := TPas2JSWForm.Create;
+  VPas2JSWForm := TPas2JSWForm.Create;           
+  VPas2JSWFrame := TPas2JSWFrame.Create;
+  VPas2JSWDataModule := TPas2JSWDataModule.Create;
+
   RegisterProjectFileDescriptor(VPas2JSWForm);
+  RegisterProjectFileDescriptor(VPas2JSWFrame);
+  RegisterProjectFileDescriptor(VPas2JSWDataModule);
+
+  ///FormEditingHook.RegisterDesignerBaseClass(TWForm);
+  FormEditingHook.StandardDesignerBaseClasses[DesignerBaseClassId_TForm] := TWForm;
+  FormEditingHook.StandardDesignerBaseClasses[DesignerBaseClassId_TFrame] := TWFrame;
+  FormEditingHook.StandardDesignerBaseClasses[DesignerBaseClassId_TDataModule] := TWDataModule;
 
   VPas2JSProject := TPas2JSProject.Create;
   RegisterProjectDescriptor(VPas2JSProject);
-
-  FormEditingHook.RegisterDesignerBaseClass(TWForm);
 
   VIDEExtension := TIDEExtensionHandler.Create;
   LazarusIDE.AddHandlerOnSaveEditorFile(@VIDEExtension.DoSaveEditorFile);

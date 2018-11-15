@@ -90,6 +90,10 @@ type
   { TWFrame }
 
   TWFrame = class(TCustomFrame)
+  private             
+    /// Fake
+    FDesignLeft: LongInt;
+    FDesignTop: LongInt;
   published
     property Align;
     property AutoSize;
@@ -98,9 +102,7 @@ type
     property ClientWidth;
     property Color;
     property Enabled;
-    property Font;  
-    property HandleClass;
-    property HandleID;
+    property Font;
     property ParentColor;
     property ParentFont;
     property ParentShowHint;
@@ -119,7 +121,31 @@ type
     property OnMouseUp;
     property OnMouseWheel;
     property OnResize;
+  published         
+    /// Fake
+    property DesignLeft: LongInt read FDesignLeft write FDesignLeft;
+    property DesignTop: LongInt read FDesignTop write FDesignTop;
+  end;  
+  TWFrameClass = class of TWFrame;
+
+  { TWDataModule }
+
+  TWDataModule = class(TCustomDataModule)
+  private
+    FHorizontalOffset: LongInt;
+    FPPI: LongInt;
+    FVerticalOffset: LongInt;
+  published
+    property OnCreate;
+    property OnDestroy;
+    property OldCreateOrder;
+  published
+    /// Fake
+    property HorizontalOffset: LongInt read FHorizontalOffset write FHorizontalOffset;
+    property VerticalOffset: LongInt read FVerticalOffset write FVerticalOffset;   
+    property PPI: LongInt read FPPI write FPPI;
   end;
+  TWDataModuleClass = class of TWDataModule;
 
   { TWComboBox }
 

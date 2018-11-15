@@ -20,7 +20,7 @@ interface
 const
   LineEnding = #10;
   sLineBreak = LineEnding;
-
+const
   MaxSmallint = 32767;
   MinSmallint = -32768;
   MaxShortInt = 127;
@@ -206,6 +206,7 @@ function GUIDToString(const GUID: TGUID): string; external name 'rtl.guidrToStr'
 var
   ExitCode: Integer; external name 'rtl.exitcode';
   IsConsole: Boolean = {$IFDEF NodeJS}true{$ELSE}false{$ENDIF};
+  FirstDotAtFileNameStartIsExtension : Boolean = False;
 
 type
   TOnParamCount = function: Longint;
@@ -220,7 +221,7 @@ function ParamStr(Index: Longint): String;
 {*****************************************************************************
                                  Math
 *****************************************************************************}
-var // ToDo: make these const
+const
   PI: Double; external name 'Math.PI';
   MathE: Double; external name 'Math.E'; // Euler's number
   MathLN10: Double; external name 'Math.LN10'; // ln(10)
@@ -265,6 +266,7 @@ function upcase(c : char) : char; assembler;
 function HexStr(Val: NativeInt; cnt: byte): string; external name 'rtl.hexStr'; overload;
 
 procedure val(const S: String; out NI : NativeInt; out Code: Integer); overload;
+procedure val(const S: String; out NI : NativeUInt; out Code: Integer); overload;
 procedure val(const S: String; out SI : ShortInt; out Code: Integer); overload;
 procedure val(const S: String; out B : Byte; out Code: Integer); overload;
 procedure val(const S: String; out SI : smallint; out Code: Integer); overload;
@@ -454,10 +456,9 @@ end;
 
 function Int(const A: Double): double;
 
-  function FTrunc(const A: Double): double; overload; external name 'Math.trunc';
-
 begin
-  Result:=FTrunc(A);
+  // trunc contains fix for missing Math.trunc in IE
+  Result:=Trunc(A);
 end;
 
 function Number(S: String): Double; external name 'Number';
@@ -470,14 +471,34 @@ var
 begin
   Code:=0;
   x:=Number(S);
+  if isNaN(x) then
+    case copy(s,1,1) of
+    '$': x:=Number('0x'+copy(S,2));
+    '&': x:=Number('0o'+copy(S,2));
+    '%': x:=Number('0b'+copy(S,2));
+    else
+      Code:=1;
+      exit;
+    end;
   if isNaN(x) or (X<>Int(X)) then
     Code:=1
   else
     NI:=Trunc(x);
 end;
 
-procedure val(const S: String; out SI : ShortInt; out Code: Integer);
+procedure val(const S: String; out NI: NativeUInt; out Code: Integer);
+var
+  x : double;
+begin
+  Code:=0;
+  x:=Number(S);
+  if isNaN(x) or (X<>Int(X)) or (X<0) then
+    Code:=1
+  else
+    NI:=Trunc(x);
+end;
 
+procedure val(const S: String; out SI : ShortInt; out Code: Integer);
 var
   X:Double;
 begin
@@ -591,6 +612,9 @@ function StringOfChar(c: Char; l: NativeInt): String;
 var
   i: Integer;
 begin
+  asm
+    if ((l>0) && c.repeat) return c.repeat(l);
+  end;
   Result:='';
   for i:=1 to l do Result:=Result+c;
 end;

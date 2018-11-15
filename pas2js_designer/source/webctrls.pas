@@ -94,9 +94,6 @@ type
   { TWFrame }
 
   TWFrame = class(TCustomFrame)
-  private
-    FHandleClass: string;
-    FHandleId: string;
   published
     property Align;
     property AutoSize;
@@ -106,8 +103,6 @@ type
     property Color;
     property Enabled;
     property Font;
-    property HandleClass: string read FHandleClass write FHandleClass;
-    property HandleId: string read FHandleId write FHandleId;
     property ParentColor;
     property ParentFont;
     property ParentShowHint;
@@ -127,6 +122,13 @@ type
     property OnMouseWheel;
     property OnResize;
   end;
+  TWFrameClass = class of TWFrame;
+
+  { TWDataModule }
+
+  TWDataModule = class(TDataModule)
+  end;   
+  TWDataModuleClass = class of TWDataModule;
 
   { TWComboBox }
 

@@ -34,6 +34,7 @@ uses
   Web;
 
 type
+
   { TJSFileReader }
 
   TJSFileReader = class external name 'FileReader'  (TJSEventTarget)

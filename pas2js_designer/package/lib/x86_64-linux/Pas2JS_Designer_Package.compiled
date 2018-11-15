@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Compiler Value="/usr/bin/fpc" Date="1526926378"/>
+  <Params Value=" -MObjFPC -Scghi -Cg -O1 -g -gl -l -vewnhibq -Fu/home/helio/Documentos/dev/work/pas2js/pas2js_designer/source -Fu/usr/share/lazarus/1.8.4/packager/units/x86_64-linux -Fu/usr/share/lazarus/1.8.4/components/lazutils/lib/x86_64-linux -Fu/usr/share/lazarus/1.8.4/lcl/units/x86_64-linux -Fu/usr/share/lazarus/1.8.4/lcl/units/x86_64-linux/gtk2 -Fu/usr/share/lazarus/1.8.4/components/lazcontrols/lib/x86_64-linux/gtk2 -Fu/usr/share/lazarus/1.8.4/components/ideintf/units/x86_64-linux/gtk2 -Fu/home/helio/Documentos/dev/work/pas2js/pas2js_designer/package/ -FU/home/helio/Documentos/dev/work/pas2js/pas2js_designer/package/lib/x86_64-linux/ -dLCL -dLCLgtk2 pas2js_designer_package.pas"/>
+</CONFIG>
