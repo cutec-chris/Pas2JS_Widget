@@ -491,10 +491,12 @@ begin
   RegisterProjectFileDescriptor(VPas2JSWFrame);
   RegisterProjectFileDescriptor(VPas2JSWDataModule);
 
-  ///FormEditingHook.RegisterDesignerBaseClass(TWForm);
-  FormEditingHook.StandardDesignerBaseClasses[DesignerBaseClassId_TForm] := TWForm;
-  FormEditingHook.StandardDesignerBaseClasses[DesignerBaseClassId_TFrame] := TWFrame;
-  FormEditingHook.StandardDesignerBaseClasses[DesignerBaseClassId_TDataModule] := TWDataModule;
+  FormEditingHook.RegisterDesignerBaseClass(TWForm);     
+  FormEditingHook.RegisterDesignerBaseClass(TWFrame);
+  FormEditingHook.RegisterDesignerBaseClass(TWDataModule);
+  //FormEditingHook.StandardDesignerBaseClasses[3{DesignerBaseClassId_TForm}] := TWForm;
+  //FormEditingHook.StandardDesignerBaseClasses[DesignerBaseClassId_TFrame] := TWFrame;
+  //FormEditingHook.StandardDesignerBaseClasses[DesignerBaseClassId_TDataModule] := TWDataModule;
 
   VPas2JSProject := TPas2JSProject.Create;
   RegisterProjectDescriptor(VPas2JSProject);
