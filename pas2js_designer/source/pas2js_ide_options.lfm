@@ -8,7 +8,7 @@ object OptionsForm: TOptionsForm
   ClientHeight = 450
   ClientWidth = 526
   Position = poScreenCenter
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.0.0.2'
   object ButtonsPanel: TButtonPanel
     Left = 6
     Height = 37
@@ -203,14 +203,10 @@ object OptionsForm: TOptionsForm
     ParentColor = False
   end
   object CompilerDialog: TOpenDialog
-    Width = 1332
-    Height = 765
     Title = 'Builder Excutable'
     left = 288
   end
   object TemplateDialog: TOpenDialog
-    Width = 1332
-    Height = 765
     Title = 'HTML page template'
     DefaultExt = '.*.html'
     Filter = 'HTML File|*.html'
@@ -222,15 +218,11 @@ object OptionsForm: TOptionsForm
     top = 120
   end
   object BrowseriDialog: TOpenDialog
-    Width = 1332
-    Height = 765
     Title = 'Browser Excutable'
     left = 288
     top = 240
   end
   object BuilderDialog: TOpenDialog
-    Width = 1332
-    Height = 765
     Title = 'Builder Excutable'
     left = 288
     top = 64

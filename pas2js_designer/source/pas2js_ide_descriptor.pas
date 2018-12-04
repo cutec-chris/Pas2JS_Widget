@@ -350,7 +350,7 @@ end;
 
 function TPas2JSWFrame.GetLocalizedDescription: string;
 begin
-  Result := 'Create a Pas2JS Web Fram';
+  Result := 'Create a Pas2JS Web Frame';
 end;
 
 { TPas2JSWDataModule }

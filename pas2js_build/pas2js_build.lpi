@@ -23,15 +23,25 @@
       <Version Value="2"/>
     </PublishOptions>
     <RunParams>
+      <local>
+        <CommandLineParams Value="C:\Quellen\Pas2JS_Widget\test\project1.lpr"/>
+      </local>
       <FormatVersion Value="2"/>
       <Modes Count="1">
-        <Mode0 Name="default"/>
+        <Mode0 Name="default">
+          <local>
+            <CommandLineParams Value="C:\Quellen\Pas2JS_Widget\test\project1.lpr"/>
+          </local>
+        </Mode0>
       </Modes>
     </RunParams>
-    <RequiredPackages Count="1">
+    <RequiredPackages Count="2">
       <Item1>
-        <PackageName Value="LCLBase"/>
+        <PackageName Value="Pas2JS_Designer_Package"/>
       </Item1>
+      <Item2>
+        <PackageName Value="LCLBase"/>
+      </Item2>
     </RequiredPackages>
     <Units Count="1">
       <Unit0>
@@ -44,12 +54,17 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="pas2js_build"/>
+      <Filename Value="../pas2js/win32/pas2js_build"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <Linking>
+      <Debugging>
+        <UseExternalDbgSyms Value="True"/>
+      </Debugging>
+    </Linking>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">
