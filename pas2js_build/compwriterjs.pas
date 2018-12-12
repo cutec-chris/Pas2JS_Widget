@@ -212,7 +212,7 @@ FNeedAccessClass; // some property needed AccessClass
     property NeededUnits: TStrings read FNeededUnits write SetNeededUnits;
   end;
 
-procedure WriteComponentToPasStream(AComponent: TComponent; AStream:
+procedure WriteComponentToJSStream(AComponent: TComponent; AStream:
 TStream);
 
 type
@@ -238,7 +238,7 @@ type
 var
   DefinePropertiesEvents: TObjectList = nil;
 
-procedure WriteComponentToPasStream(AComponent: TComponent; AStream:
+procedure WriteComponentToJSStream(AComponent: TComponent; AStream:
 TStream);
 var
   Writer: TCompWriterJS;

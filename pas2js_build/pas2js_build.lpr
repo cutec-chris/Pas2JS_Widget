@@ -7,7 +7,7 @@ uses
   {$IFDEF UNIX}{$IFDEF UseCThreads}
   cthreads,
   {$ENDIF}{$ENDIF}
-  Classes, SysUtils, CustApp, CompWriterJS, fpjson, jsonparser,LResources,WebCtrls
+  Classes, SysUtils, CustApp, CompWriterJS, fpjson, jsonparser,LResources,WebCtrls, process
   { you can add units after this };
 
 type
@@ -34,8 +34,21 @@ procedure TPas2JSBuild.FindComponentClass(Reader: TReader;
 begin
   if copy(AClassName,0,6)= 'TWForm' then
     ComponentClass := TWForm
+  else if copy(AClassName,0,7)= 'TWFrame' then
+    ComponentClass := TWFrame
+  else if copy(AClassName,0,11)= 'TDataModule' then
+    ComponentClass := TWDataModule
   else if CompareText(AClassName, 'TWButton') = 0 then
-    ComponentClass := TWButton;
+    ComponentClass := TWButton
+  else if CompareText(AClassName, 'TWMemo') = 0 then
+    ComponentClass := TWMemo
+  else if CompareText(AClassName, 'TWPanel') = 0 then
+    ComponentClass := TWPanel
+  else if CompareText(AClassName, 'TWDataGrid') = 0 then
+    ComponentClass := TWDataGrid
+  else if CompareText(AClassName, 'TWPagination') = 0 then
+    ComponentClass := TWPagination
+  ;
 end;
 
 procedure TPas2JSBuild.DoRun;
@@ -45,6 +58,7 @@ var
   aParser: TJSONParser;
   aOptions: TJSONObject;
   searchResult: TRawByteSearchRec;
+  aProc: TProcess;
 begin
   // quick check parameters
   ErrorMsg:=CheckOptions('h','help');
@@ -96,6 +110,11 @@ begin
     until FindNext(searchResult) <> 0;
     FindClose(searchResult);
   end;
+
+  aProc := TProcess.Create(nil);
+  aProc.CommandLine:='pas2js '+ParamStr(1);
+  aProc.Execute;
+  aProc.Free;
   // stop program loop
   Terminate;
 end;
@@ -114,11 +133,15 @@ end;
 procedure TPas2JSBuild.ConvertLFM(aName: string);
 var
   aComponent : TComponent;
-  aStream: TFileStream;
+  aStream, bStream: TFileStream;
 begin
   writeln('INFO: Converting "'+aName+'"');
   aStream := TFileStream.Create(aName,fmOpenRead);
   ReadComponentFromTextStream(aStream,aComponent,@FindComponentClass);
+  aStream.Free;
+  bStream := TFileStream.Create(ChangeFileExt(aName,'.wfm'),fmCreate);
+  WriteComponentToJSStream(aComponent,bStream);
+  bStream.Free;
 end;
 
 procedure TPas2JSBuild.WriteHelp;
