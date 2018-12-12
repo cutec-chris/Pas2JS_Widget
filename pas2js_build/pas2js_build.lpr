@@ -53,12 +53,13 @@ end;
 
 procedure TPas2JSBuild.DoRun;
 var
-  ErrorMsg: String;
-  aFile: TStringList;
+  ErrorMsg,aStr: String;
+  aFile, sl: TStringList;
   aParser: TJSONParser;
   aOptions: TJSONObject;
   searchResult: TRawByteSearchRec;
   aProc: TProcess;
+  i: Integer;
 begin
   // quick check parameters
   ErrorMsg:=CheckOptions('h','help');
@@ -112,9 +113,16 @@ begin
   end;
 
   aProc := TProcess.Create(nil);
-  aProc.CommandLine:='pas2js '+ParamStr(1);
+  aProc.CommandLine:='pas2js';
+  for i := 0 to aOptions.Arrays['CustomOptions'].Count-1 do
+    aProc.CommandLine:=aProc.CommandLine+' '+aOptions.Arrays['CustomOptions'].Strings[i];
+  aProc.CommandLine:=aProc.CommandLine+' '+ParamStr(ParamCount);
+  aProc.Options:=aProc.Options+[poWaitOnExit,poUsePipes];
   aProc.Execute;
+  sl := TStringList.Create;
+  sl.LoadFromStream(AProc.Output);
   aProc.Free;
+  for i := 0 to sl.Count-1 do writeln(sl[i]);
   // stop program loop
   Terminate;
 end;
